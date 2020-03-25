@@ -24,6 +24,16 @@ int DCCppConfig::EthernetPort = 0;
 EthernetProtocol DCCppConfig::Protocol = EthernetProtocol::TCP;
 #endif
 
+#ifdef USE_WIFI
+uint8_t DCCppConfig::WifiIp[4];
+uint8_t DCCppConfig::WifiIpMac[6];
+char DCCppConfig::WifiSsid[40];
+char DCCppConfig::WifiPassword[40];
+int DCCppConfig::WifiPort = 0;
+
+EthernetProtocol DCCppConfig::Protocol = EthernetProtocol::TCP;
+#endif
+
 byte DCCppConfig::SignalEnablePinMain = UNDEFINED_PIN;
 byte DCCppConfig::CurrentMonitorMain = UNDEFINED_PIN;
 					

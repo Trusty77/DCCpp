@@ -8,84 +8,84 @@ Part of DCC++ BASE STATION for the Arduino
 **********************************************************************/
 
 #include "Arduino.h"
-
-// See TextCommand::parse() below for defined text commands.
-
-#include "TextCommand.h"
-#ifdef USE_TEXTCOMMAND
-
-#ifdef VISUALSTUDIO
-#include "string.h"
-#include "iostream"
-#else
-extern unsigned int __heap_start;
-extern void *__brkval;
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-
-char TextCommand::commandString[MAX_COMMAND_LENGTH+1];
-
-///////////////////////////////////////////////////////////////////////////////
-
-void TextCommand::init(volatile RegisterList *_mRegs, volatile RegisterList *_pRegs, CurrentMonitor *_mMonitor){
-  commandString[0] = 0;
-} // TextCommand:TextCommand
-
-///////////////////////////////////////////////////////////////////////////////
-
-void TextCommand::process(){
-  char c;
-	
-  #if defined(USE_ETHERNET)
-
-	EthernetClient client= DCCPP_INTERFACE.available();
-
-	if (client) {
-
-		if (DCCppConfig::Protocol == EthernetProtocol::HTTP) {
-			DCCPP_INTERFACE.println("HTTP/1.1 200 OK");
-			DCCPP_INTERFACE.println("Content-Type: text/html");
-			DCCPP_INTERFACE.println("Access-Control-Allow-Origin: *");
-			DCCPP_INTERFACE.println("Connection: close");
-			DCCPP_INTERFACE.println("");
-		}
-
-		while (client.connected() && client.available()) {        // while there is data on the network
-			c = client.read();
-			if (c == '<')                    // start of new command
-				commandString[0] = 0;
-			else if (c == '>')               // end of new command
-			{
-				if (parse(commandString) == false)
-				{
-#if defined(DCCPP_DEBUG_MODE)
-					Serial.println("invalid command !");
-#endif
-				}
-			}
-			else if (strlen(commandString) < MAX_COMMAND_LENGTH)    // if comandString still has space, append character just read from network
-				sprintf(commandString, "%s%c", commandString, c);     // otherwise, character is ignored (but continue to look for '<' or '>')
-		} // while
-
-		if (DCCppConfig::Protocol == EthernetProtocol::HTTP)
-			client.stop();
-	}
-	
-	#else  // SERIAL case
-
-		while (DCCPP_INTERFACE.available()>0) {    // while there is data on the serial line
-			c = DCCPP_INTERFACE.read();
-			if (c == '<')                    // start of new command
-				commandString[0] = 0;
-			else if (c == '>')               // end of new command
-				parse(commandString);
-			else if (strlen(commandString) < MAX_COMMAND_LENGTH)	// if commandString still has space, append character just read from serial line
-				sprintf(commandString, "%s%c", commandString, c);	// otherwise, character is ignored (but continue to look for '<' or '>')
-		} // while
-  
-	#endif
-} // TextCommand:process
+ 
+ // See TextCommand::parse() below for defined text commands.
+ 
+ #include "TextCommand.h"
+ #ifdef USE_TEXTCOMMAND
+ 
+ #ifdef VISUALSTUDIO
+ #include "string.h"
+ #include "iostream"
+ #else
+ extern unsigned int __heap_start;
+ extern void *__brkval;
+ #endif
+ 
+ 
+ char TextCommand::commandString[MAX_COMMAND_LENGTH+1];
+ 
+ 
+ void TextCommand::init(volatile RegisterList *_mRegs, volatile RegisterList *_pRegs, CurrentMonitor *_mMonitor){
+   commandString[0] = 0;
+ } // TextCommand:TextCommand
+ 
+ 
+ void TextCommand::process(){
+   char c;
+   
+ #if defined(USE_ETHERNET) || defined(USE_WIFI)
+   #if defined(USE_ETHERNET)
+      EthernetClient client = DCCPP_INTERFACE.available();
+      //-> Ajout CB
+   #elif defined(USE_WIFI)
+      WiFiClient client = DCCPP_INTERFACE.available();
+   #endif
+ 
+   if (client) {
+      if (DCCppConfig::Protocol == EthernetProtocol::HTTP) {
+        DCCPP_INTERFACE.println("HTTP/1.1 200 OK");
+        DCCPP_INTERFACE.println("Content-Type: text/html");
+        DCCPP_INTERFACE.println("Access-Control-Allow-Origin: *");
+        DCCPP_INTERFACE.println("Connection: close");
+        DCCPP_INTERFACE.println("");
+      }
+ 
+     while (client.connected() && client.available()) {        // while there is data on the network
+        
+       c = client.read();
+       if (c == '<')                    // start of new command
+         commandString[0] = 0;
+       else if (c == '>')               // end of new command
+       {
+         if (parse(commandString) == false)
+         {
+             #if defined(DCCPP_DEBUG_MODE)
+                       Serial.println("invalid command !");
+             #endif
+         }
+       }
+       else if (strlen(commandString) < MAX_COMMAND_LENGTH)    // if comandString still has space, append character just read from network
+         sprintf(commandString, "%s%c", commandString, c);     // otherwise, character is ignored (but continue to look for '<' or '>')
+     } // while
+ 
+     if (DCCppConfig::Protocol == EthernetProtocol::HTTP)
+       client.stop();
+   }
+   
+  #else  // SERIAL case
+     while (DCCPP_INTERFACE.available()>0) {    // while there is data on the serial line
+       c = DCCPP_INTERFACE.read();
+       if (c == '<')                    // start of new command
+         commandString[0] = 0;
+       else if (c == '>')               // end of new command
+         parse(commandString);
+       else if (strlen(commandString) < MAX_COMMAND_LENGTH)  // if commandString still has space, append character just read from serial line
+         sprintf(commandString, "%s%c", commandString, c); // otherwise, character is ignored (but continue to look for '<' or '>')
+     } // while
+   
+   #endif
+ } // TextCommand:process
    
 ///////////////////////////////////////////////////////////////////////////////
 

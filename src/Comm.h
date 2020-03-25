@@ -9,6 +9,12 @@ Part of DCC++ BASE STATION for the Arduino
 
 #include "Config.h"
 
+#ifdef USE_WIFI                    // WiFi Selected
+  #include <WiFi.h>
+  extern WiFiServer DCCPP_INTERFACE;
+#endif 
+
+
 #ifdef USE_ETHERNET                 // Ethernet Shield Card Selected
 
   #ifdef USE_ETHERNET_WIZNET_5100
@@ -25,7 +31,7 @@ Part of DCC++ BASE STATION for the Arduino
 
   #elif defined(USE_ETHERNET_ENC28J60)
     #define COMM_SHIELD_NAME      "BASIC ETHERNET SHIELD (ENC28J60)"
-	#include <UIPEthernet.h>     // https://github.com/ntruchsess/arduino_uip/tree/Arduino_1.5.x
+  #include <UIPEthernet.h>     // https://github.com/ntruchsess/arduino_uip/tree/Arduino_1.5.x
 
   #endif
 

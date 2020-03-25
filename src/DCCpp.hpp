@@ -168,13 +168,24 @@ class DCCpp
 		*/
 		static void setDebugDccMode();
 
-#ifdef USE_ETHERNET
+//#ifdef USE_ETHERNET
+#if defined(USE_ETHERNET)
 		/** Initializes the Ethernet link.
 		@param inMac Mac address of this network element.
 		@param inIp	IP address, or NULL for DHCP configuration.
 		@param inProtocol Can be HTTP or TCP. Default is TCP.
 		*/
 		static void beginEthernet(uint8_t *inMac, uint8_t *inIp, EthernetProtocol inProtocol = EthernetProtocol::TCP);
+#endif
+
+//#ifdef USE_WIFI
+#if defined(USE_WIFI)
+		/** Initializes the Wifi link.
+		@param inSsid SSID of this network element.
+		@param inPassword	PASSWORD of this network element.
+		@param inProtocol Can be HTTP or TCP. Default is TCP.
+		*/
+		static void beginWifi(const char *inSsid, const char *inPassword, EthernetProtocol inProtocol = EthernetProtocol::TCP);
 #endif
 
 		// DCCpp global functions

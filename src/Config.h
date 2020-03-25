@@ -87,7 +87,7 @@ Part of DCC++ BASE STATION for the Arduino
 #define POLOLU_DIRECTION_MOTOR_CHANNEL_PIN_A 7
 #define POLOLU_DIRECTION_MOTOR_CHANNEL_PIN_B 8
 
-#if defined(USE_ETHERNET)
+#if defined(USE_ETHERNET) || defined(USE_WIFI)
 enum EthernetProtocol
 {
 	HTTP,
@@ -102,6 +102,15 @@ struct DCCppConfig
 	static uint8_t EthernetMac[6];
 	static int EthernetPort;
 	static EthernetProtocol Protocol;
+#endif
+
+#if defined(USE_WIFI) 
+  static uint8_t WifiIp[4];
+  static uint8_t WifiIpMac[6];
+  static char WifiSsid[40];
+  static char WifiPassword[40];
+  static int WifiPort;
+  static EthernetProtocol Protocol;
 #endif
 
 #ifdef USE_ONLY1_INTERRUPT
